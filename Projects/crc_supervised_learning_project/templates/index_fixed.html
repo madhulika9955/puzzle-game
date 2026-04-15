@@ -1,0 +1,181 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Credit Risk Predictor</title>
+
+    <style>
+      body {
+        font-family: Arial;
+        background: #c3cfff;
+        text-align: center;
+        margin-top: 40px;
+      }
+
+      .form-row {
+        margin: 12px;
+      }
+
+      label {
+        display: inline-block;
+        width: 200px;
+        font-weight: bold;
+        text-align: right;
+        margin-right: 10px;
+      }
+
+      input,
+      select {
+        padding: 8px;
+        width: 250px;
+        border-radius: 5px;
+        border: 1px solid #fea0a0;
+      }
+
+      button {
+        padding: 12px 25px;
+        background: #008337;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        margin-top: 15px;
+      }
+
+      button:hover {
+        background: #27ae60;
+      }
+
+      #result {
+        margin-top: 20px;
+        font-size: 22px;
+        font-weight: bold;
+        color: #2c3e50;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Madhulika's Bank</h1>
+
+    <div class="form-row">
+      <label>Age :</label>
+      <input id="age" type="number" placeholder="Example: 35" />
+    </div>
+
+    <div class="form-row">
+      <label>Income :</label>
+      <input id="income" type="number" placeholder="Example: 60000" />
+    </div>
+
+    <div class="form-row">
+      <label>Loan Amount :</label>
+      <input id="loan" type="number" placeholder="Example: 15000" />
+    </div>
+
+    <div class="form-row">
+      <label>Credit Score :</label>
+      <input id="credit" type="number" placeholder="300 - 850" />
+    </div>
+
+    <div class="form-row">
+      <label>Employment Years :</label>
+      <input id="employment" type="number" placeholder="Example: 5" />
+    </div>
+
+    <div class="form-row">
+      <label>Education Level :</label>
+      <select id="education">
+        <option value="">Select</option>
+        <option value="0">High School</option>
+        <option value="1">Bachelor</option>
+        <option value="2">Master</option>
+        <option value="3">PhD</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label>Housing Status :</label>
+      <select id="housing">
+        <option value="">Select</option>
+        <option value="0">Rent</option>
+        <option value="1">Mortgage</option>
+        <option value="2">Own</option>
+      </select>
+    </div>
+
+    <button onclick="predict()">Predict</button>
+
+    <h3 id="result"></h3>
+
+    <script>
+      function predict() {
+        let age = document.getElementById("age").value;
+        let income = document.getElementById("income").value;
+        let loan = document.getElementById("loan").value;
+        let credit = document.getElementById("credit").value;
+        let employment = document.getElementById("employment").value;
+        let education = document.getElementById("education").value;
+        let housing = document.getElementById("housing").value;
+
+        if (
+          age == "" ||
+          income == "" ||
+          loan == "" ||
+          credit == "" ||
+          employment == "" ||
+          education == "" ||
+          housing == ""
+        ) {
+          alert("Please fill all fields");
+          return;
+        }
+
+        document.getElementById("result").innerHTML = "Predicting...";
+
+        fetch("/predict", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            age: age,
+            income: income,
+            loan: loan,
+            credit: credit,
+            employment: employment,
+            education: education,
+            housing: housing,
+          }),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Server response not OK");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            console.log("DATA:", data); // DEBUG
+
+            if (data.error) {
+              document.getElementById("result").innerHTML =
+                "Error: " + data.error;
+              return;
+            }
+
+            document.getElementById("result").innerHTML =
+              "Predicted Value : " +
+              data.prediction +
+              "<br>Result : " +
+              data.status;
+          })
+          .catch((error) => {
+            console.log("ERROR:", error);
+
+            document.getElementById("result").innerHTML =
+              "Something went wrong ❌";
+          });
+      }
+    </script>
+  </body>
+</html>
